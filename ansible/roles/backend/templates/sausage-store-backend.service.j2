@@ -1,0 +1,20 @@
+[Unit]
+Description=Manage Java service sausage-store-backend.service
+
+[Service]
+User={{ backend_user }}
+Environment=REPORT_PATH=/var/www-data/htdocs/
+Environment=LOG_PATH=/
+StandardOutput=append:{{ backend_path }}/logs/sausage-store-backend.log
+StandardError=append:{{ backend_path }}/logs/sausage-store-backend.log
+Restart=always
+ExecStart=/usr/bin/java \
+-Dmyserver.basePath='{{ backend_path }}/' \
+-Dmyserver.bindAddr='127.0.0.1' \
+-Dmyserver.bindPort='8080' \
+-Dmyserver.hostName='Sausage-store' \
+-jar '{{ backend_path }}/sausage-store.jar'
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

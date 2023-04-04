@@ -1,0 +1,11 @@
+---
+- name: Re-reading the configuration systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Restart backend
+  become_user: root
+  ansible.builtin.service:
+    name: sausage-store-backend
+    state: restarted
+    enabled: true

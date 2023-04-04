@@ -1,0 +1,12 @@
+---
+- name: Setup backend
+  hosts: webserver
+  roles:
+    - backend
+  vars_files: ./group_vars/backend.yaml
+
+- name: Setup frontend
+  hosts: webserver
+  roles:
+    - frontend
+  vars_files: ./group_vars/frontend.yaml

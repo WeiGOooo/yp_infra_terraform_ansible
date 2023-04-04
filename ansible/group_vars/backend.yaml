@@ -1,0 +1,3 @@
+backend_user: jarservice
+backend_path: /var/jarservice
+backend_version: 1.0.486015

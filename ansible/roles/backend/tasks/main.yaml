@@ -1,0 +1,68 @@
+---
+- name: Update apt
+  become: yes
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  tags:
+    - configuration
+
+- name: Install necessary Linux packages
+  ansible.builtin.raw: sudo apt install -y python3-pip python3 openjdk-16-jdk
+  tags:
+    - configuration
+
+
+- name: Install necessary Python packages
+  ansible.builtin.pip:
+    name: lxml
+    state: latest
+  tags:
+    - configuration
+
+
+- name: Add backend service user
+  become_user: root
+  ansible.builtin.user:
+    name: "{{ backend_user }}"
+    create_home: no
+    shell: /sbin/nologin
+  tags:
+    - configuration
+
+- name: Create directory for log
+  become_user: root
+  ansible.builtin.file:
+    path: "{{ backend_path }}/logs"
+    state: directory
+  tags:
+    - configuration
+
+- name: Download backend artifact from nexus
+  maven_artifact:
+    dest: "{{ backend_path }}"
+    repository_url: "{{ nexus_url }}/sausage-store-zasypkin-nikita-backend"
+    group_id: "com.yandex.practicum.devops"
+    artifact_id: "sausage-store"
+    version: "{{ backend_version }}"
+    username: "{{ nexus_user }}"
+    password: "{{ nexus_password }}"
+  tags:
+    - configuration
+
+
+- name: Add permissions
+  ansible.builtin.file:
+    path: "{{ backend_path }}"
+    owner: "{{ backend_user }}"
+    group: "{{ backend_user }}"
+    recurse: yes
+    mode: '0775'
+
+- name: Copy unit-file on server
+  ansible.builtin.template:
+    src: sausage-store-backend.service.j2
+    dest: /etc/systemd/system/sausage-store-backend.service
+  notify:
+    - Re-reading the configuration systemd
+    - Restart backend

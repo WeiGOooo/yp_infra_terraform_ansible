@@ -1,0 +1,9 @@
+---
+all:
+  children:
+    webserver:
+      hosts:
+        51.250.90.34:
+          ansible_user: ansible
+  vars:
+    ansible_connection: ssh
